@@ -1,0 +1,147 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
+
+namespace db_edit
+{
+    public partial class Form1 : Form
+    {
+        public static MySqlConnection connection = new MySqlConnection("Server=localhost;Database=member1;Uid=root;Pwd=password;");
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            connection.Open();
+            MySqlCommand query = connection.CreateCommand();
+            query.CommandText = "SELECT * FROM member1.member_tb;";
+
+            try
+            {
+
+                MySqlDataReader reader = query.ExecuteReader();
+                dgv.Rows.Clear();
+
+                for (int i = 0; reader.Read(); i++)
+                {
+                    dgv.Rows.Add();
+                    dgv.Rows[i].Cells["id"].Value = reader["id"].ToString();
+                    dgv.Rows[i].Cells["pw"].Value = reader["pw"].ToString();
+                    dgv.Rows[i].Cells["age"].Value = reader["age"].ToString();
+                    //dataGridView1.Rows[i].Cells["birthday"].Value = reader["birthday"].ToString();
+                }
+            }
+            catch (Exception Ex)
+            {
+                MessageBox.Show(Ex.Message);
+            }
+            connection.Close();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void add_Click(object sender, EventArgs e)
+        {
+            string insertQuery = $"INSERT INTO member_tb(id, pw, age) VALUES(\"{idtextbox.Text}\", \"{pwtextbox.Text}\", \"{agetextbox.Text}\");";
+
+            connection.Open();
+            MySqlCommand command = new MySqlCommand(insertQuery, connection);
+
+            try 
+            {
+                if (command.ExecuteNonQuery() == 1)
+                {
+                    MessageBox.Show("정상적으로 추가 되었습니다.");
+                }
+                else
+                {
+                    MessageBox.Show("추가중 오류가 발생하였습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            connection.Close();
+        }
+
+        private void del_Click(object sender, EventArgs e)
+        {
+            string deleteQuery = $"DELETE FROM member_tb WHERE id = \"{idtextbox.Text}\" AND pw = \"{pwtextbox.Text}\" AND age = \"{agetextbox.Text}\";";
+
+            connection.Open();
+            MySqlCommand command = new MySqlCommand(deleteQuery, connection);
+
+            try 
+            {
+                if (command.ExecuteNonQuery() == 1)
+                {
+                    MessageBox.Show("정상적으로 삭제 되었습니다.");
+                }
+                else
+                {
+                    MessageBox.Show("삭제중 오류가 발생하였습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            connection.Close();
+        }
+
+        private void cha_Click(object sender, EventArgs e)
+        {
+            string changeQuery = $"UPDATE member_tb SET id = \"{idtextbox.Text}\", pw = \"{pwtextbox.Text}\", age = \"{agetextbox.Text}\" WHERE id = \"{changetextbox.Text}\";";
+
+            connection.Open();
+            MySqlCommand command = new MySqlCommand(changeQuery, connection);
+
+            try
+            {
+                if (command.ExecuteNonQuery() == 1)
+                {
+                    MessageBox.Show("정상적으로 수정 되었습니다.");
+                }
+                else
+                {
+                    MessageBox.Show("수정중 오류가 발생하였습니다.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            connection.Close();
+        }
+
+        private void exq_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process[] mProcess = System.Diagnostics.Process.GetProcessesByName(Application.ProductName);
+            foreach (System.Diagnostics.Process p in mProcess)
+            p.Kill();
+        }
+    }
+}
